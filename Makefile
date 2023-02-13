@@ -6,7 +6,7 @@ all:		$(NAME)
 
 $(NAME):
 	VOLUME_PATH=$(shell cat srcs/.env | grep ^VOLUME_PATH= | awk '{split($$1, arr, "="); printf "%s", arr[2];}')
-	mkdir -p ${VOLUME_PATH}/data/db ${VOLUME_PATH}/data/wp
+	mkdir -p ${VOLUME_PATH}/db ${VOLUME_PATH}/wp
 	docker compose -f $(DOCKER_COMPOSE_FILE_PATH) up --build
 
 clean:
@@ -15,7 +15,7 @@ clean:
 fclean:		clean
 	- docker volume rm $(docker volume ls -q)
 	- docker network rm $(docker network ls -q)
-	- rm -rf data
+	- rm -rf ${VOLUME_PATH}/*
 
 re:
 	make fclean
