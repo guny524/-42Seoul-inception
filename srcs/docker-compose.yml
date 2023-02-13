@@ -55,14 +55,14 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ${VOLUME_PATH}/data/wp
+      device: ${VOLUME_PATH}/wp
   vol_db:
     name: vol_db
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${VOLUME_PATH}/data/db
+      device: ${VOLUME_PATH}/db
 
 networks:
   network-inception:
