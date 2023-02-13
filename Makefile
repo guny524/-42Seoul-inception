@@ -7,10 +7,10 @@ all:		$(NAME)
 $(NAME):
 	VOLUME_PATH=$(shell cat srcs/.env | grep ^VOLUME_PATH= | awk '{split($$1, arr, "="); printf "%s", arr[2];}')
 	mkdir -p ${VOLUME_PATH}/data/db ${VOLUME_PATH}/data/wp
-	docker-compose -f $(DOCKER_COMPOSE_FILE_PATH) up --build # TODO -d
+	docker compose -f $(DOCKER_COMPOSE_FILE_PATH) up --build # TODO -d
 
 clean:
-	docker-compose -f $(DOCKER_COMPOSE_FILE_PATH) down
+	docker compose -f $(DOCKER_COMPOSE_FILE_PATH) down
 
 fclean:		clean
 	- docker volume rm $(docker volume ls -q)
@@ -22,6 +22,6 @@ re:
 	make all
 
 ps:
-	docker-compose -f $(DOCKER_COMPOSE_FILE_PATH) ps -a
+	docker compose -f $(DOCKER_COMPOSE_FILE_PATH) ps -a
 
 .PHONY:		all clean fclean re ps
