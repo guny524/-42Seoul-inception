@@ -1,0 +1,77 @@
+# TODO ‘network: host’나 'links'가 없어야 합니다
+# TODO ‘network(s)’가 있어야 합니다.
+# TODO docker-compose.yaml 파일을 확인하여 docker-network가 사용되는지 확인합니다. 그런 다음 'docker network ls' 명령을 실행하여 네트워크가 표시되는지 확인
+# TODO 이 부분은 상당히 직관적입니다. 가상 머신을 재부팅해야 합니다. 다시 시작되면 docker-compose를 다시 시작하십시오. 그런 다음 모든 것이 작동하고 WordPress와 MariaDB가 모두 구성되었는지 확인합니다. 이전에 WordPress 웹 사이트에서 변경한 내용은 여전히 여기에 있어야 합니다.
+
+# TODO '--link'가 없어야 합니다.
+
+
+version: "3.9"
+services:
+
+  mariadb:
+    image: mariadb
+    build:
+      context: requirements/mariadb
+      dockerfile: Dockerfile
+      args:
+        MYSQL_DB: ${MYSQL_DB?}
+        MYSQL_ROOT_PWD: ${MYSQL_ROOT_PWD?}
+        MYSQL_USER: ${MYSQL_USER?}
+        MYSQL_USER_PWD: ${MYSQL_USER_PWD?}
+    restart: always
+    expose:
+      - "3306"
+    networks:
+      - network-inception
+# https://docs.docker.com/compose/compose-file/#volumes
+    volumes:
+      - vol_db:/var/lib/mysql
+
+  wordpress:
+    image: wordpress
+    build: requirements/wordpress
+    depends_on:
+      - mariadb
+    env_file:
+      - .env
+    expose:
+      - "9000"
+    networks:
+      - network-inception
+    volumes:
+      - vol_wp:/var/www/html/wordpress
+
+  nginx:
+    image: nginx
+    build: requirements/nginx
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    environment:
+      DOMAIN_NAME: ${DOMAIN_NAME?}
+    volumes:
+      - vol_wp:/var/www/html/wordpress
+    networks:
+      - network-inception
+
+volumes:
+  vol_wp:
+    name: vol_wp
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${VOLUME_PATH}/data/wp
+  vol_db:
+    name: vol_db
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${VOLUME_PATH}/data/db
+
+networks:
+  network-inception:
+    driver: bridge
